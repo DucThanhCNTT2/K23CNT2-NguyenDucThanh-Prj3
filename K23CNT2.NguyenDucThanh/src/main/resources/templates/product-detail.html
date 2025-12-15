@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.name} + ' - SneakerNDT'">Chi tiết sản phẩm</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+    <!-- CSS chung (giống index) -->
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .ndt-header-top {
+            background: #000;
+            color: #fff;
+            padding: 6px 0;
+        }
+
+        .ndt-logo img {
+            height: 48px;
+        }
+
+        .ndt-search-box input {
+            border-radius: 0;
+        }
+
+        .ndt-main-menu {
+            background: #222;
+        }
+
+        .ndt-main-menu a {
+            color: #fff;
+            font-weight: 500;
+            padding: 14px 18px;
+            display: inline-block;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .ndt-main-menu a:hover {
+            background: #ffb300;
+            color: #000;
+        }
+
+        /* nhóm 2 khối tài khoản + cart */
+        .ndt-account-cart-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* mỗi khối */
+        .ndt-header-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #111;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .ndt-header-box:hover {
+            background: #222;
+        }
+
+        .ndt-header-icon {
+            font-size: 20px;
+        }
+
+        /* phần chữ bên phải icon */
+        .ndt-header-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+            font-size: 12px;
+        }
+
+        .ndt-header-label {
+            opacity: 0.8;
+        }
+
+        .ndt-header-action {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* CART POPUP */
+        .ndt-cart-wrapper {
+            position: relative;
+        }
+
+        .ndt-cart-popup {
+            position: absolute;
+            right: 0;
+            top: 130%;
+            width: 340px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0,0,0,.25);
+            padding: 28px 24px 20px;
+            display: none;
+            z-index: 2000;
+        }
+
+        .ndt-cart-popup.show {
+            display: block;
+        }
+
+        .ndt-cart-arrow {
+            position: absolute;
+            top: -10px;
+            right: 24px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid #fff;
+        }
+
+        .ndt-cart-empty-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 36px;
+            color: #999;
+        }
+
+        .ndt-cart-content {
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .ndt-cart-content p {
+            margin-bottom: 16px;
+        }
+
+        .ndt-btn-cart-return {
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 999px;
+            background: #ffb300;
+            color: #000;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .ndt-btn-cart-return:hover {
+            background: #ffa000;
+            color: #000;
+        }
+
+        .ndt-footer-top {
+            background: #111;
+            color: #fff;
+            padding: 18px 0;
+        }
+
+        .ndt-footer-top i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .ndt-footer-bottom {
+            background: #000;
+            color: #d9d9d9;
+            padding: 26px 0;
+            font-size: 14px;
+        }
+
+        .ndt-scroll-top {
+            position: fixed;
+            bottom: 18px;
+            right: 18px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            cursor: pointer;
+        }
+    </style>
+
+    <!-- JS cho header giống index (CART + LOGIN) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ---- CART POPUP ----
+    const cartBtn = document.getElementById('ndtCartBtn');
+    const cartPopup = document.getElementById('ndtCartPopup');
+
+    if (cartBtn && cartPopup) {
+        // Bấm vào nút Cart thì mở/đóng popup
+        cartBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            cartPopup.classList.toggle('show');
+        });
+
+        // Click ra ngoài thì đóng popup
+        document.addEventListener('click', function (e) {
+            if (!cartPopup.contains(e.target) && !cartBtn.contains(e.target)) {
+                cartPopup.classList.remove('show');
+            }
+        });
+    }
+
+    // ==== TỰ MỞ POPUP SAU KHI THÊM GIỎ HÀNG ====
+    // Controller redirect về URL có ?addedToCart=1
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('addedToCart') === '1' && cartPopup) {
+        // tự mở popup
+        cartPopup.classList.add('show');
+
+        // Xóa param khỏi URL cho đẹp (không reload trang)
+        const url = new URL(window.location.href);
+        url.searchParams.delete('addedToCart');
+        window.history.replaceState({}, '', url);
+    }
+
+
+            // LOGIN POPUP (dùng Bootstrap modal)
+            const accountBtn = document.getElementById('ndtAccountBtn');
+            const loginModal = document.getElementById('ndtLoginModal');
+
+            if (accountBtn && loginModal) {
+                accountBtn.addEventListener('click', function () {
+                    // chỉ mở modal nếu chưa đăng nhập
+                    const isLoggedIn = !!document.querySelector('[data-ndt-logged-in="true"]');
+                    if (!isLoggedIn) {
+                        const modal = new bootstrap.Modal(loginModal);
+                        modal.show();
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+
+<!-- HEADER TOP (y hệt index) -->
+<div class="ndt-header-top">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center">
+            <div class="col-md-3 d-flex align-items-center ndt-logo">
+                <a href="/" class="d-flex align-items-center text-decoration-none text-white">
+                    <img src="/Img/StoreLogo.jpg" alt="SneakerNDT">
+                    <span class="ms-2 fw-bold">SneakerNDT</span>
+                </a>
+            </div>
+
+            <div class="col-md-6">
+                <form class="ndt-search-box" action="#" method="get">
+                    <div class="input-group">
+                        <input type="text" name="keyword" class="form-control"
+                               placeholder="Tìm kiếm sản phẩm">
+                        <button class="btn btn-dark" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bọc cả 2 khối -->
+            <div class="col-md-3 d-flex justify-content-end">
+                <div class="ndt-account-cart-group">
+
+                    <!-- KHỐI TÀI KHOẢN -->
+                    <div class="ndt-header-box" id="ndtAccountBtn">
+                        <div class="ndt-header-icon">
+                            <i class="fa fa-user"></i>
+                        </div>
+
+                        <!-- Nếu chưa login -->
+                        <div class="ndt-header-text"
+                             th:if="${session.ndtCurrentUser == null}">
+                            <span class="ndt-header-label">Tài khoản</span>
+                            <span class="ndt-header-action">LOGIN</span>
+                        </div>
+
+                        <!-- Nếu đã login -->
+                        <div class="ndt-header-text"
+                             th:if="${session.ndtCurrentUser != null}"
+                             data-ndt-logged-in="true">
+                            <span class="ndt-header-label">Xin chào</span>
+                            <span class="ndt-header-action"
+                                  th:text="${session.ndtCurrentUser.username}">User</span>
+                        </div>
+                    </div>
+
+                    <!-- KHỐI CART -->
+                    <div class="ndt-header-box ndt-cart-wrapper" id="ndtCartBtn">
+                        <div class="ndt-header-icon">
+                            <i class="fa fa-shopping-bag"></i>
+                        </div>
+                        <div class="ndt-header-text">
+                            <span class="ndt-header-label">Cart /</span>
+                            <span class="ndt-header-action">
+                <span th:text="${cartTotal == null
+                                 ? '0 đ'
+                                 : #numbers.formatDecimal(cartTotal,0,'COMMA',0,'POINT') + ' đ'}">
+                    0 đ
+                </span>
+            </span>
+                        </div>
+
+                        <!-- POPUP CART -->
+                        <div id="ndtCartPopup" class="ndt-cart-popup">
+                            <div class="ndt-cart-arrow"></div>
+
+                            <!-- Giỏ TRỐNG -->
+                            <div class="ndt-cart-content" th:if="${#lists.isEmpty(cartItems)}">
+                                <div class="ndt-cart-empty-icon">
+                                    <i class="fa fa-shopping-bag"></i>
+                                </div>
+                                <p>No products in the cart.</p>
+                                <a class="ndt-btn-cart-return" th:href="@{/}">RETURN TO SHOP</a>
+                            </div>
+
+                            <!-- Giỏ CÓ HÀNG -->
+                            <div class="ndt-cart-content text-start"
+                                 th:if="${!#lists.isEmpty(cartItems)}">
+
+                                <div class="mb-3" style="max-height:260px; overflow-y:auto;">
+                                    <div class="d-flex mb-2 border-bottom pb-2"
+                                         th:each="item : ${cartItems}">
+                                        <div style="width:60px;height:60px;overflow:hidden;border-radius:6px;"
+                                             class="me-2">
+                                            <img th:src="${item.product.imgUrl} != null ?
+                                          @{/Img/{f}(f=${item.product.imgUrl})} :
+                                          @{/Img/default.png}"
+                                                 class="img-fluid" alt="img">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold small"
+                                                 th:text="${item.product.name}">Tên sản phẩm</div>
+                                            <div class="small text-muted">
+                                                SL: <span th:text="${item.quantity}">1</span>
+                                                x
+                                                <span th:text="${#numbers.formatDecimal(item.unitPrice,0,'COMMA',0,'POINT')} + ' đ'">
+                                    1,200,000 đ
+                                </span>
+                                            </div>
+                                            <div class="small fw-bold text-danger"
+                                                 th:text="${#numbers.formatDecimal(item.lineTotal,0,'COMMA',0,'POINT')} + ' đ'">
+                                                2,400,000 đ
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span class="fw-semibold">Tổng:</span>
+                                    <span class="fw-bold text-danger"
+                                          th:text="${#numbers.formatDecimal(cartTotal,0,'COMMA',0,'POINT')} + ' đ'">
+                        0 đ
+                    </span>
+                                </div>
+
+                                <a th:href="@{/checkout}" class="btn btn-warning w-100 fw-bold">
+                                    THANH TOÁN
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- LOGIN / REGISTER MODAL (y hệt index) -->
+<div class="modal fade" id="ndtLoginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <button type="button" class="btn-close ms-auto me-3 mt-3"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+
+            <div class="row g-0 p-4">
+
+                <!-- LOGIN -->
+                <div class="col-md-6 border-end pe-md-4 mb-4 mb-md-0">
+                    <h4 class="mb-3">Login</h4>
+
+                    <form th:action="@{/ndt-login}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Username or email address *</label>
+                            <input type="text" name="usernameOrEmail" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password *</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="rememberMe" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning fw-bold px-4">
+                            LOG IN
+                        </button>
+                    </form>
+                </div>
+
+                <!-- REGISTER -->
+                <div class="col-md-6 ps-md-4">
+                    <h4 class="mb-3">Register</h4>
+
+                    <form th:action="@{/ndt-register}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Username *</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Full name</label>
+                            <input type="text" name="fullName" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email address *</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password *</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning fw-bold px-4">
+                            REGISTER
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN MENU (y hệt index) -->
+<nav class="ndt-main-menu">
+    <div class="container-fluid px-4 d-flex justify-content-center flex-wrap">
+        <a href="#">Nike</a>
+        <a href="#">Adidas</a>
+        <a href="#">Puma</a>
+        <a href="#">Vans</a>
+        <a href="#">Converse</a>
+        <a href="#">NewBalance</a>
+    </div>
+</nav>
+
+<!-- NỘI DUNG CHI TIẾT SẢN PHẨM -->
+<div class="container mt-4 mb-5">
+    <div class="row">
+
+        <!-- ẢNH -->
+        <div class="col-md-5 mb-3">
+            <img class="img-fluid border rounded"
+                 th:src="${product.imgUrl} != null ?
+                          @{/Img/{f}(f=${product.imgUrl})} :
+                          @{/Img/default.png}"
+                 th:alt="${product.name}">
+        </div>
+
+        <!-- THÔNG TIN -->
+        <div class="col-md-7">
+            <h3 class="mb-3" th:text="${product.name}">Tên sản phẩm</h3>
+
+            <p class="text-muted">
+                Danh mục:
+                <span th:text="${product.category != null ? product.category.categoryName : 'N/A'}">
+                    Category
+                </span>
+            </p>
+
+            <p th:if="${product.description != null}" th:text="${product.description}">
+                Mô tả sản phẩm...
+            </p>
+
+            <div class="mt-3 mb-4">
+                <!-- Có giảm giá -->
+                <div th:if="${product.discountPercent != null and product.discountPercent > 0}">
+                    <!-- giá gốc -->
+                    <span class="text-muted text-decoration-line-through me-3"
+                          th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + ' đ'">
+            3,000,000 đ
+        </span>
+
+                    <!-- giá sau giảm -->
+                    <span class="fs-3 fw-bold text-danger"
+                          th:text="${#numbers.formatDecimal(product.discountedPrice,0,'COMMA',0,'POINT')} + ' đ'">
+            2,400,000 đ
+        </span>
+
+                    <!-- badge % -->
+                    <span class="badge bg-danger ms-2"
+                          th:text="'-' + ${product.discountPercent} + '%'">
+            -20%
+        </span>
+                </div>
+
+                <!-- Không giảm giá -->
+                <div th:if="${product.discountPercent == null or product.discountPercent <= 0}">
+        <span class="fs-3 fw-bold text-danger"
+              th:text="${#numbers.formatDecimal(product.price,0,'COMMA',0,'POINT')} + ' đ'">
+            2,400,000 đ
+        </span>
+                </div>
+            </div>
+
+
+            <form th:action="@{/cart/add}" method="post" class="d-inline">
+                <input type="hidden" name="productId" th:value="${product.id}"/>
+                <input type="hidden" name="qty" value="1"/>
+                <input type="hidden" name="redirect"
+                       th:value="@{'/product/' + ${product.id}}"/>
+
+                <button type="submit" class="btn btn-dark me-2">
+                    <i class="fa fa-shopping-bag me-1"></i> Thêm vào giỏ
+                </button>
+            </form>
+
+            <a th:href="@{/}" class="btn btn-outline-secondary">Quay lại trang chủ</a>
+
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER (y hệt index) -->
+<div class="ndt-footer-top">
+    <div class="container">
+        <div class="row text-center text-md-start">
+            <div class="col-md-3 mb-3 mb-md-0">
+                <i class="fa-solid fa-truck-fast"></i>
+                <div class="fw-bold">MIỄN PHÍ vận chuyển</div>
+                <small>cho đơn từ 500K</small>
+            </div>
+            <div class="col-md-3 mb-3 mb-md-0">
+                <i class="fa-solid fa-box-open"></i>
+                <div class="fw-bold">ĐỔI HÀNG dễ dàng</div>
+                <small>Trong 30 ngày</small>
+            </div>
+            <div class="col-md-3 mb-3 mb-md-0">
+                <i class="fa-solid fa-credit-card"></i>
+                <div class="fw-bold">Thanh toán đa dạng</div>
+                <small>Nhiều hình thức</small>
+            </div>
+            <div class="col-md-3">
+                <i class="fa-solid fa-headset"></i>
+                <div class="fw-bold">CSKH 1900 xxx</div>
+                <small>8:00 - 21:00 hằng ngày</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ndt-footer-bottom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="fw-bold">CÔNG TY SneakerNDT</div>
+                <div>Địa chỉ: 137 Nguyễn Đức Thành, K23CNT2</div>
+                <div>Email: support@sneakerndt.com</div>
+            </div>
+            <div class="col-md-3 mt-3 mt-md-0">
+                <div class="fw-bold">VỀ CHÚNG TÔI</div>
+                <div>Giới thiệu</div>
+                <div>Liên hệ</div>
+                <div>Tuyển dụng</div>
+            </div>
+            <div class="col-md-3 mt-3 mt-md-0">
+                <div class="fw-bold">HỖ TRỢ</div>
+                <div>Chính sách đổi trả</div>
+                <div>Hướng dẫn mua hàng</div>
+                <div>Chính sách bảo mật</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ndt-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="fa-solid fa-chevron-up"></i>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

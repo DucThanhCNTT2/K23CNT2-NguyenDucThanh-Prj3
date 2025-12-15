@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đơn hàng</title>
+</head>
+<body>
+
+<h3>Chi tiết đơn hàng #<span th:text="${order.id}">1</span></h3>
+
+<p>
+    Ngày đặt:
+    <strong th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">
+        12/12/2025 14:35
+    </strong>
+</p>
+
+<p>
+    Khách hàng:
+    <strong th:text="${order.user != null ? order.user.fullName : 'Khách lạ'}">Thành</strong>
+</p>
+
+<p>
+    Trạng thái:
+    <strong th:text="${order.status}">PENDING</strong>
+</p>
+
+<h5 class="mt-4">Sản phẩm</h5>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Sản phẩm</th>
+        <th>SL</th>
+        <th>Đơn giá</th>
+        <th>Thành tiền</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="d : ${order.orderDetails}">
+        <td th:text="${d.product.name}">VANS KNU SKOOL</td>
+        <td th:text="${d.quantity}">1</td>
+        <td th:text="${#numbers.formatDecimal(d.unitPrice,0,'COMMA',0,'POINT')} + ' đ'">
+            2,400,000 đ
+        </td>
+        <td th:text="${#numbers.formatDecimal(d.unitPrice * d.quantity,0,'COMMA',0,'POINT')} + ' đ'">
+            2,400,000 đ
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<p class="mt-3">
+    Tổng tiền:
+    <strong class="text-danger"
+            th:text="${#numbers.formatDecimal(order.totalAmount,0,'COMMA',0,'POINT')} + ' đ'">
+        3,900,000 đ
+    </strong>
+</p>
+
+<a th:href="@{/ndt-admin/orders}" class="btn btn-secondary mt-3">Quay lại danh sách</a>
+
+</body>
+</html>

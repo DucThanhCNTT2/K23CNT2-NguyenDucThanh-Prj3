@@ -1,0 +1,6 @@
+#ndtMainSlider .ndt-banner {
+    width: 100%;
+    height: 420px;          /* tùy bạn, 350–450px đều được */
+    object-fit: cover;      /* cắt cho vừa khung mà không méo ảnh */
+    image-rendering: auto;  /* giữ độ mịn, tránh bị răng cưa */
+}

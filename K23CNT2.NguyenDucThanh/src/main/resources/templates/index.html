@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SneakerNDT - Shop giày sneaker</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .ndt-header-top {
+            background: #000;
+            color: #fff;
+            padding: 6px 0;
+        }
+
+        /* --- CSS CHO MENU TÀI KHOẢN (DROPDOWN) --- */
+        #ndtAccountBtn {
+            position: relative; /* Cha định vị */
+        }
+
+        .ndt-account-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 220px;
+            background: #fff;
+            color: #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            padding: 10px 0;
+            display: none; /* Mặc định ẩn */
+            z-index: 9999; /* Đảm bảo nổi lên trên cùng */
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        /* Mũi tên tam giác nhỏ */
+        .ndt-account-dropdown::before {
+            content: "";
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #fff;
+        }
+
+        /* HIỆN MENU KHI HOVER */
+        #ndtAccountBtn:hover .ndt-account-dropdown {
+            display: block;
+        }
+
+        .ndt-account-dropdown a {
+            display: block;
+            padding: 10px 20px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .ndt-account-dropdown a:hover {
+            background: #f5f5f5;
+            color: #ffb300;
+        }
+
+        /* --- END CSS DROPDOWN --- */
+
+        .ndt-logo img { height: 48px; }
+        .ndt-search-box input { border-radius: 0; }
+        .ndt-main-menu { background: #222; }
+        .ndt-main-menu a {
+            color: #fff; font-weight: 500; padding: 14px 18px;
+            display: inline-block; text-transform: uppercase; font-size: 14px; text-decoration: none;
+        }
+        .ndt-main-menu a:hover { background: #ffb300; color: #000; }
+
+        .ndt-account-cart-group { display: flex; gap: 10px; align-items: center; }
+        .ndt-header-box {
+            display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+            background: #111; border-radius: 4px; cursor: pointer; color: #fff;
+        }
+        .ndt-header-box:hover { background: #222; }
+        .ndt-header-icon { font-size: 20px; }
+        .ndt-header-text { display: flex; flex-direction: column; line-height: 1.1; font-size: 12px; }
+        .ndt-header-label { opacity: 0.8; }
+        .ndt-header-action { font-size: 13px; font-weight: 600; }
+
+        /* CART POPUP */
+        .ndt-cart-wrapper { position: relative; }
+        .ndt-cart-popup {
+            position: absolute; right: 0; top: 130%; width: 340px;
+            background: #fff; border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.25);
+            padding: 28px 24px 20px; display: none; z-index: 2000; color: #333;
+        }
+        .ndt-cart-popup.show { display: block; }
+        .ndt-cart-arrow {
+            position: absolute; top: -10px; right: 24px; width: 0; height: 0;
+            border-left: 10px solid transparent; border-right: 10px solid transparent;
+            border-bottom: 10px solid #fff;
+        }
+        .ndt-cart-empty-icon {
+            width: 80px; height: 80px; border-radius: 50%; border: 1px solid #ccc;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 12px; font-size: 36px; color: #999;
+        }
+        .ndt-cart-content { text-align: center; font-size: 14px; }
+        .ndt-btn-cart-return {
+            display: inline-block; padding: 8px 24px; border-radius: 999px;
+            background: #ffb300; color: #000; font-weight: 600; text-decoration: none;
+        }
+        .ndt-btn-cart-return:hover { background: #ffa000; color: #000; }
+
+        /* Banner & Product */
+        #ndtMainSlider .carousel-item img { width: 100%; max-height: 420px; object-fit: cover; }
+        .ndt-category-circle { width: 140px; text-align: center; margin: 0 auto 20px; }
+        .ndt-category-circle .circle-img {
+            width: 140px; height: 140px; border-radius: 50%; background: #e40000;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .ndt-category-circle img { max-width: 90%; max-height: 90%; }
+        .ndt-category-circle h6 { margin-top: 8px; font-weight: 600; }
+        .ndt-section-title {
+            background: linear-gradient(90deg, #ff5a00, #ffb300); color: #fff;
+            text-align: center; padding: 14px; border-radius: 24px 24px 0 0;
+            font-size: 22px; font-weight: 700; letter-spacing: 1px;
+        }
+        .ndt-product-card {
+            background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+            position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s;
+        }
+        .ndt-product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0, 0, 0, .12); }
+        .ndt-discount-badge {
+            position: absolute; top: 10px; left: 10px; background: #ff6600;
+            color: #fff; font-weight: 700; padding: 4px 8px; border-radius: 4px; font-size: 12px;
+        }
+        .ndt-product-card img { width: 100%; height: 190px; object-fit: cover; }
+        .ndt-product-name { font-size: 14px; font-weight: 600; min-height: 40px; color: #000; text-decoration: none; display:block;}
+        .ndt-product-card a { text-decoration: none; }
+        .ndt-price-current { color: #e40000; font-weight: 700; font-size: 16px; }
+        .ndt-price-old { text-decoration: line-through; color: #888; font-size: 13px; margin-right: 6px; }
+        .ndt-load-more {
+            margin: 18px auto 32px; display: block; border-radius: 999px;
+            padding: 8px 36px; font-weight: 600;
+        }
+        .ndt-footer-top { background: #111; color: #fff; padding: 18px 0; }
+        .ndt-footer-top i { font-size: 24px; margin-bottom: 8px; }
+        .ndt-footer-bottom { background: #000; color: #d9d9d9; padding: 26px 0; font-size: 14px; }
+        .ndt-scroll-top {
+            position: fixed; bottom: 18px; right: 18px; width: 40px; height: 40px;
+            border-radius: 50%; border: 1px solid #111; display: flex; align-items: center;
+            justify-content: center; background: #fff; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ndt-header-top">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center">
+            <div class="col-md-3 d-flex align-items-center ndt-logo">
+                <a href="/" class="d-flex align-items-center text-decoration-none text-white">
+                    <img src="/Img/StoreLogo.jpg" alt="SneakerNDT">
+                    <span class="ms-2 fw-bold">SneakerNDT</span>
+                </a>
+            </div>
+
+            <div class="col-md-6">
+                <form class="ndt-search-box" action="#" method="get">
+                    <div class="input-group">
+                        <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm sản phẩm">
+                        <button class="btn btn-dark" type="submit"><i class="fa fa-search"></i></button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-3 d-flex justify-content-end">
+                <div class="ndt-account-cart-group">
+
+                    <div class="ndt-header-box" id="ndtAccountBtn"
+                         th:attr="data-logged-in=${session.ndtCurrentUser != null}">
+                        <div class="ndt-header-icon">
+                            <i class="fa fa-user"></i>
+                        </div>
+
+                        <div class="ndt-header-text" th:if="${session.ndtCurrentUser == null}">
+                            <span class="ndt-header-label">Tài khoản</span>
+                            <span class="ndt-header-action">LOGIN</span>
+                        </div>
+
+                        <div class="ndt-header-text" th:if="${session.ndtCurrentUser != null}">
+                            <span class="ndt-header-label">Xin chào</span>
+                            <span class="ndt-header-action"
+                                  th:text="${session.ndtCurrentUser.username}">User</span>
+                        </div>
+
+                        <div class="ndt-account-dropdown" th:if="${session.ndtCurrentUser != null}">
+
+                            <div th:if="${session.ndtCurrentUser.role != null}">
+
+                                <a th:if="${session.ndtCurrentUser.role.roleName == 'ADMIN'}"
+                                   th:href="@{/ndt-admin}">
+                                    <i class="fa-solid fa-gauge-high"></i> Trang quản trị
+                                </a>
+
+                                <a th:unless="${session.ndtCurrentUser.role.roleName == 'ADMIN'}"
+                                   th:href="@{/order-history}">
+                                    <i class="fa-solid fa-box-open"></i> Đơn hàng của tôi
+                                </a>
+
+                                <a th:unless="${session.ndtCurrentUser.role.roleName == 'ADMIN'}"
+                                   th:href="@{/profile}">
+                                    <i class="fa-solid fa-address-card"></i> Thông tin cá nhân
+                                </a>
+
+                            </div>
+
+                            <hr class="my-1 text-muted">
+
+                            <a th:href="@{/ndt-logout}">
+                                <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="ndt-header-box ndt-cart-wrapper" id="ndtCartBtn">
+                        <div class="ndt-header-icon"><i class="fa fa-shopping-bag"></i></div>
+                        <div class="ndt-header-text">
+                            <span class="ndt-header-label">Cart /</span>
+                            <span class="ndt-header-action">
+                                <span th:text="${cartTotal == null ? '0 đ' : #numbers.formatDecimal(cartTotal,0,'COMMA',0,'POINT') + ' đ'}">0 đ</span>
+                            </span>
+                        </div>
+
+                        <div id="ndtCartPopup" class="ndt-cart-popup">
+                            <div class="ndt-cart-arrow"></div>
+
+                            <div class="ndt-cart-content" th:if="${#lists.isEmpty(cartItems)}">
+                                <div class="ndt-cart-empty-icon"><i class="fa fa-shopping-bag"></i></div>
+                                <p>No products in the cart.</p>
+                                <a class="ndt-btn-cart-return" th:href="@{/}">RETURN TO SHOP</a>
+                            </div>
+
+                            <div class="ndt-cart-content text-start" th:if="${!#lists.isEmpty(cartItems)}">
+                                <div class="mb-3" style="max-height:260px; overflow-y:auto;">
+                                    <div class="d-flex mb-2 border-bottom pb-2" th:each="item : ${cartItems}">
+                                        <div style="width:60px;height:60px;overflow:hidden;border-radius:6px;" class="me-2">
+                                            <img th:src="${item.product.imgUrl} != null ? @{/Img/{f}(f=${item.product.imgUrl})} : @{/Img/default.png}" class="img-fluid">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold small" th:text="${item.product.name}"></div>
+                                            <div class="small text-muted">
+                                                SL: <span th:text="${item.quantity}"></span> x
+                                                <span th:text="${#numbers.formatDecimal(item.unitPrice,0,'COMMA',0,'POINT')} + ' đ'"></span>
+                                            </div>
+                                            <div class="small fw-bold text-danger" th:text="${#numbers.formatDecimal(item.lineTotal,0,'COMMA',0,'POINT')} + ' đ'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span class="fw-semibold">Tổng:</span>
+                                    <span class="fw-bold text-danger" th:text="${#numbers.formatDecimal(cartTotal,0,'COMMA',0,'POINT')} + ' đ'"></span>
+                                </div>
+                                <a th:href="@{/checkout}" class="btn btn-warning w-100 fw-bold">THANH TOÁN</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ndtLoginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <button type="button" class="btn-close ms-auto me-3 mt-3" data-bs-dismiss="modal"></button>
+            <div class="row g-0 p-4">
+                <div class="col-md-6 border-end pe-md-4 mb-4 mb-md-0">
+                    <h4 class="mb-3">Login</h4>
+                    <form th:action="@{/ndt-login}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Username / Email *</label>
+                            <input type="text" name="usernameOrEmail" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password *</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning fw-bold px-4">LOG IN</button>
+                    </form>
+                </div>
+                <div class="col-md-6 ps-md-4">
+                    <h4 class="mb-3">Register</h4>
+                    <form th:action="@{/ndt-register}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Username *</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3"><label class="form-label">Email *</label><input type="email" name="email" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Password *</label><input type="password" name="password" class="form-control" required></div>
+                        <button type="submit" class="btn btn-warning fw-bold px-4">REGISTER</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="ndt-main-menu">
+    <div class="container-fluid px-4 d-flex justify-content-center flex-wrap">
+        <a href="#">Nike</a><a href="#">Adidas</a><a href="#">Puma</a>
+        <a href="#">Vans</a><a href="#">Converse</a><a href="#">NewBalance</a>
+    </div>
+</nav>
+
+<div id="ndtMainSlider" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active"><img src="/Img/banner-1.webp" class="d-block w-100"></div>
+        <div class="carousel-item"><img src="/Img/banner-4.png" class="d-block w-100"></div>
+        <div class="carousel-item"><img src="/Img/banner-5.jpg" class="d-block w-100"></div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#ndtMainSlider" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+    <button class="carousel-control-next" type="button" data-bs-target="#ndtMainSlider" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+</div>
+
+<div class="container my-4">
+    <div class="row text-center">
+        <div class="col-6 col-md-3 col-lg-2" th:each="c : ${categories}">
+            <div class="ndt-category-circle">
+                <div class="circle-img">
+                    <a th:href="@{'/category/' + ${c.id}}">
+                        <img th:src="${c.imgUrl != null} ? @{/Img/{f}(f=${c.imgUrl})} : @{/Img/default-category.png}">
+                    </a>
+                </div>
+                <h6 th:text="${c.categoryName}"></h6>
+                <small class="text-muted"><span th:text="${#lists.size(c.products)}"></span> Products</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-4">
+
+    <div class="row g-3">
+
+        <div class="col-md-4">
+
+            <div class="p-3 border rounded bg-white d-flex flex-column justify-content-between h-100">
+
+                <div>
+
+                    <h6 class="mb-1 fw-bold">GIẢM 50K</h6>
+
+                    <small>Cho đơn hàng từ 700K</small>
+
+                    <p class="mt-2 mb-1">Mã: <span class="fw-bold text-danger">NDT50</span></p>
+
+                    <small>HSD: 01-15.01.2026</small>
+
+                </div>
+
+                <button class="btn btn-outline-danger mt-3 w-100">SAO CHÉP</button>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-4">
+
+            <div class="p-3 border rounded bg-white d-flex flex-column justify-content-between h-100">
+
+                <div>
+
+                    <h6 class="mb-1 fw-bold">GIẢM 80K</h6>
+
+                    <small>Cho đơn hàng từ 1.000K</small>
+
+                    <p class="mt-2 mb-1">Mã: <span class="fw-bold text-danger">NDT80</span></p>
+
+                    <small>HSD: 01-15.01.2026</small>
+
+                </div>
+
+                <button class="btn btn-outline-danger mt-3 w-100">SAO CHÉP</button>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-4">
+
+            <div class="p-3 border rounded bg-white d-flex flex-column justify-content-between h-100">
+
+                <div>
+
+                    <h6 class="mb-1 fw-bold">FREESHIP</h6>
+
+                    <small>Cho đơn hàng từ 500K</small>
+
+                    <p class="mt-2 mb-1">Mã: <span class="fw-bold text-danger">NDTFS</span></p>
+
+                    <small>HSD: 01-15.01.2026</small>
+
+                </div>
+
+                <button class="btn btn-outline-danger mt-3 w-100">SAO CHÉP</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="container mb-5">
+    <div class="ndt-section-title">BÁN CHẠY NHẤT</div>
+    <div class="p-3" style="background:#ffeb99;border-radius:0 0 24px 24px;">
+        <div class="row g-3" id="ndt-product-list">
+            <div class="col-6 col-md-4 col-lg-3" th:each="p : ${bestProducts}">
+                <div class="ndt-product-card h-100">
+                    <a th:href="@{'/product/' + ${p.id}}">
+                        <img th:src="${p.imgUrl} != null ? @{/Img/{f}(f=${p.imgUrl})} : @{/Img/default.png}">
+                    </a>
+                    <div class="p-2">
+                        <a th:href="@{'/product/' + ${p.id}}" class="ndt-product-name" th:text="${p.name}"></a>
+                        <div class="mt-1"><span class="ndt-price-current" th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')} + ' đ'"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-dark ndt-load-more" id="ndt-load-more" th:data-size="${pageSize}">TẢI THÊM</button>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="ndt-section-title">ĐẠI TIỆC SALE 50%++</div>
+    <div class="p-3" style="background:#ffeb99;border-radius:0 0 24px 24px;">
+        <div class="row g-3">
+            <div class="col-6 col-md-4 col-lg-3" th:each="p : ${saleProducts}">
+                <div class="ndt-product-card h-100">
+                    <span class="ndt-discount-badge" th:if="${p.discountPercent > 0}" th:text="'-' + ${p.discountPercent} + '%'"></span>
+                    <a th:href="@{'/product/' + ${p.id}}">
+                        <img th:src="${p.imgUrl} != null ? @{/Img/{f}(f=${p.imgUrl})} : @{/Img/default.png}">
+                    </a>
+                    <div class="p-2">
+                        <a th:href="@{'/product/' + ${p.id}}" class="ndt-product-name" th:text="${p.name}"></a>
+                        <div class="mt-1">
+                            <span class="ndt-price-old" th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')} + ' đ'"></span>
+                            <span class="ndt-price-current" th:text="${#numbers.formatDecimal(p.discountedPrice,0,'COMMA',0,'POINT')} + ' đ'"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-dark ndt-load-more">TẢI THÊM</button>
+    </div>
+</div>
+
+<div class="ndt-footer-top">
+    <div class="container text-center text-md-start">
+        <div class="row">
+            <div class="col-md-3"><i class="fa-solid fa-truck-fast"></i><div class="fw-bold">MIỄN PHÍ vận chuyển</div></div>
+            <div class="col-md-3"><i class="fa-solid fa-box-open"></i><div class="fw-bold">ĐỔI HÀNG dễ dàng</div></div>
+            <div class="col-md-3"><i class="fa-solid fa-credit-card"></i><div class="fw-bold">Thanh toán đa dạng</div></div>
+            <div class="col-md-3"><i class="fa-solid fa-headset"></i><div class="fw-bold">CSKH 1900 xxx</div></div>
+        </div>
+    </div>
+</div>
+<div class="ndt-footer-bottom text-center">SneakerNDT &copy; 2025</div>
+
+<div class="ndt-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fa-solid fa-chevron-up"></i></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // JS: Tải thêm sản phẩm (Giữ nguyên logic của bạn)
+    document.addEventListener('DOMContentLoaded', function () {
+        const loadMoreBtn = document.getElementById('ndt-load-more');
+        const productList = document.getElementById('ndt-product-list');
+        const size = parseInt(loadMoreBtn.dataset.size || '4');
+        const initialCount = productList.children.length;
+        let currentPage = 0;
+        let isExpanded = false;
+
+        loadMoreBtn.addEventListener('click', function () {
+            if (isExpanded) {
+                while (productList.children.length > initialCount) {
+                    productList.removeChild(productList.lastElementChild);
+                }
+                currentPage = 0; isExpanded = false; loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'TẢI THÊM';
+                return;
+            }
+            currentPage++;
+            fetch(`/api/products?page=${currentPage}&size=${size}`).then(res => res.json()).then(products => {
+                if (products.length === 0) { loadMoreBtn.disabled = true; loadMoreBtn.textContent = 'Đã hết sản phẩm'; return; }
+                products.forEach(p => {
+                    const col = document.createElement('div'); col.className = 'col-6 col-md-4 col-lg-3';
+                    const price = new Intl.NumberFormat('vi-VN').format(p.price);
+                    col.innerHTML = `<div class="ndt-product-card h-100"><a href="/product/${p.id}"><img src="/Img/${p.imgUrl || 'default.png'}"></a><div class="p-2"><div class="ndt-product-name">${p.name}</div><div class="mt-1"><span class="ndt-price-current">${price} đ</span></div></div></div>`;
+                    productList.appendChild(col);
+                });
+                isExpanded = true; loadMoreBtn.textContent = 'THU GỌN';
+            }).catch(err => { console.error(err); alert('Lỗi tải thêm'); });
+        });
+    });
+
+    // JS: Popup Login và Cart
+    document.addEventListener('DOMContentLoaded', function () {
+        const cartBtn = document.getElementById('ndtCartBtn');
+        const cartPopup = document.getElementById('ndtCartPopup');
+        if (cartBtn && cartPopup) {
+            cartBtn.addEventListener('click', (e) => { e.stopPropagation(); cartPopup.classList.toggle('show'); });
+            document.addEventListener('click', (e) => { if (!cartPopup.contains(e.target) && !cartBtn.contains(e.target)) cartPopup.classList.remove('show'); });
+        }
+
+        const accountBtn = document.getElementById('ndtAccountBtn');
+        const loginModalEl = document.getElementById('ndtLoginModal');
+        if (accountBtn && loginModalEl && window.bootstrap) {
+            const loginModal = new bootstrap.Modal(loginModalEl);
+            accountBtn.addEventListener('click', function () {
+                const isLoggedIn = accountBtn.getAttribute('data-logged-in') === 'true';
+                if (!isLoggedIn) loginModal.show();
+            });
+        }
+    });
+</script>
+</body>
+</html>
