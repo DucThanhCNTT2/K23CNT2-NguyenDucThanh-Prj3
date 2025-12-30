@@ -27,16 +27,13 @@ public class NdtUser {
     @Column(name = "ndt_phone", length = 20)
     private String phone;
 
-    // ⭐ quan hệ với bảng ndt_roles (ndt_role_id)
     @ManyToOne
     @JoinColumn(name = "ndt_role_id")
     private NdtRole role;
 
-    // ⭐ cột ndt_is_active (TINYINT(1))
     @Column(name = "ndt_is_active")
     private Boolean isActive;
 
-    // 1 user có nhiều order
     @OneToMany(mappedBy = "user")
     private List<NdtOrder> orders;
 

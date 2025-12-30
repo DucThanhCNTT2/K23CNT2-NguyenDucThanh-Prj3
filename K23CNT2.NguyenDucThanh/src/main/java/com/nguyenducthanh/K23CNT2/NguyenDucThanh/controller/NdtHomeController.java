@@ -34,7 +34,6 @@ public class NdtHomeController {
                         @RequestParam(name = "size", defaultValue = "4") int size,
                         @RequestParam(name = "saleSize", defaultValue = "4") int saleSize) {
 
-        // ====== XỬ LÝ GIỎ HÀNG CHO HEADER ======
         @SuppressWarnings("unchecked")
         List<NdtCartItem> cart = (List<NdtCartItem>) session.getAttribute("ndtCart");
         double cartTotal = 0;
@@ -43,13 +42,10 @@ public class NdtHomeController {
                 cartTotal += item.getLineTotal();
             }
         } else {
-            cart = List.of(); // list rỗng tránh null pointer
+            cart = List.of();
         }
         model.addAttribute("cartItems", cart);
         model.addAttribute("cartTotal", cartTotal);
-        // =======================================
-
-        // ====== BÁN CHẠY NHẤT ======
         Pageable bestPageable = PageRequest.of(0, size);
         Page<NdtProduct> bestPage =
                 productRepository.findByIsActiveTrueOrderByIdDesc(bestPageable);
@@ -58,7 +54,6 @@ public class NdtHomeController {
         model.addAttribute("size", size);
         model.addAttribute("bestHasMore", bestPage.hasNext());
 
-        // ====== ĐẠI TIỆC JEANS SALE 50%++ (chỉ sản phẩm có discount > 0) ======
         Pageable salePageable = PageRequest.of(0, saleSize);
         Page<NdtProduct> salePage =
                 productRepository.findByIsActiveTrueAndDiscountPercentGreaterThanOrderByIdDesc(
@@ -70,17 +65,14 @@ public class NdtHomeController {
         model.addAttribute("saleSize", saleSize);
         model.addAttribute("saleHasMore", salePage.hasNext());
 
-        // ====== Danh mục tròn ======
         model.addAttribute("categories", categoryRepository.findAll());
 
         return "index";
     }
 
-    // ⭐ CHỨC NĂNG TÌM KIẾM
     @GetMapping("/search")
     public String search(@RequestParam("keyword") String keyword, Model model) {
 
-        // Gọi hàm tìm kiếm MỚI (cả tên và thương hiệu)
         List<NdtProduct> products = productRepository.searchByNameOrBrand(keyword);
 
         model.addAttribute("products", products);

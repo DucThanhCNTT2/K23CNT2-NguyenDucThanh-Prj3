@@ -8,9 +8,9 @@ import java.math.RoundingMode;
 public class ProductDto {
     private Long id;
     private String name;
-    private BigDecimal price;          // giá gốc
-    private Integer discountPercent;   // % giảm
-    private BigDecimal finalPrice;     // giá sau giảm
+    private BigDecimal price;
+    private Integer discountPercent;
+    private BigDecimal finalPrice;
     private String imgUrl;
 
     public ProductDto(NdtProduct p) {
@@ -21,7 +21,6 @@ public class ProductDto {
         this.imgUrl = p.getImgUrl();
 
         if (discountPercent != null && discountPercent > 0) {
-            // final = price * (100 - discount)/100
             this.finalPrice = price
                     .multiply(BigDecimal.valueOf(100 - discountPercent))
                     .divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP);
@@ -30,7 +29,6 @@ public class ProductDto {
         }
     }
 
-        // getter / setter (có thể dùng Lombok @Data nếu bạn biết)
         public Long getId() { return id; }
         public void setId(Long id) { this.id = id; }
 

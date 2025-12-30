@@ -19,7 +19,7 @@ public class NdtAdminCategoryController {
         this.categoryRepo = categoryRepo;
     }
 
-    // -------- LIST --------
+
     @GetMapping
     public String listCategories(Model model) {
         model.addAttribute("activeMenu", "category");
@@ -27,7 +27,7 @@ public class NdtAdminCategoryController {
         return "admin/category-list";   // templates/admin/category-list.html
     }
 
-    // -------- CREATE FORM --------
+
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("activeMenu", "category");
@@ -43,7 +43,7 @@ public class NdtAdminCategoryController {
         return "redirect:/ndt-admin/categories";
     }
 
-    // -------- EDIT --------
+
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         NdtCategory category = categoryRepo.findById(id)
@@ -69,7 +69,7 @@ public class NdtAdminCategoryController {
         return "redirect:/ndt-admin/categories";
     }
 
-    // -------- DELETE --------
+
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
         if (categoryRepo.existsById(id)) {

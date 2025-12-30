@@ -44,7 +44,6 @@ public class NdtCartController {
         return cart;
     }
 
-    // ----- THÊM VÀO GIỎ -----
     @PostMapping("/cart/add")
     public String addToCart(@RequestParam("productId") Long productId,
                             @RequestParam(value = "qty", defaultValue = "1") int qty,
@@ -59,7 +58,6 @@ public class NdtCartController {
         NdtProduct product = optProduct.get();
         List<NdtCartItem> cart = getCart(session);
 
-        // đã có thì tăng số lượng
         NdtCartItem exist = cart.stream()
                 .filter(i -> i.getProduct().getId().equals(product.getId()))
                 .findFirst()
@@ -71,7 +69,6 @@ public class NdtCartController {
             cart.add(new NdtCartItem(product, qty));
         }
 
-        // quay lại trang cũ
         String target = (redirectUrl != null && !redirectUrl.isBlank())
                 ? redirectUrl
                 : "/";
@@ -85,7 +82,6 @@ public class NdtCartController {
         return "redirect:" + target;
     }
 
-    // ----- TRANG CHECKOUT -----
     @GetMapping("/checkout")
     public String checkout(HttpSession session, Model model) {
         List<NdtCartItem> cart = getCart(session);
@@ -116,18 +112,15 @@ public class NdtCartController {
         return "checkout";
     }
 
-    // ⭐ Nút ĐẶT HÀNG
     @PostMapping("/checkout/place-order")
     public String placeOrder(HttpSession session, RedirectAttributes ra) {
 
-        // 1. Lấy User
         NdtUser currentUser = (NdtUser) session.getAttribute("ndtCurrentUser");
         if (currentUser == null) {
             ra.addFlashAttribute("msg", "Bạn cần đăng nhập để đặt hàng");
             return "redirect:/checkout";
         }
 
-        // 2. Lấy Cart từ Session
         List<NdtCartItem> cart = getCart(session);
         if (cart.isEmpty()) {
             ra.addFlashAttribute("msg", "Giỏ hàng đang trống");
@@ -135,10 +128,7 @@ public class NdtCartController {
         }
 
         try {
-            // 3. Gọi Service (Truyền cả User và Cart vào)
             NdtOrder order = orderService.placeOrder(currentUser, cart);
-
-            // 4. Xóa giỏ hàng sau khi đặt thành công
             session.removeAttribute("ndtCart");
 
             return "redirect:/thank-you?orderId=" + order.getId();
@@ -150,19 +140,15 @@ public class NdtCartController {
         }
     }
 
-    // ⭐ ----- TRANG CẢM ƠN (Đã sửa lỗi) -----
     @GetMapping("/thank-you")
     public String thankYou(@RequestParam("orderId") Long orderId,
                            Model model) {
-
-        // 🔥 Lấy thông tin đơn hàng từ DB gửi sang View
-        // Để HTML có thể gọi ${order.id}, ${order.totalAmount}...
         Optional<NdtOrder> orderOpt = orderRepository.findById(orderId);
 
         if (orderOpt.isPresent()) {
             model.addAttribute("order", orderOpt.get());
         } else {
-            return "redirect:/"; // Không tìm thấy đơn thì về trang chủ
+            return "redirect:/";
         }
 
         return "order/thank-you";

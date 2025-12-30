@@ -14,21 +14,19 @@ public class NdtOrder {
     private Long id;
 
     @Column(name = "ndt_order_date", nullable = false)
-    private LocalDateTime orderDate;  // ndt_order_date (DATETIME)
+    private LocalDateTime orderDate;
 
     @Column(name = "ndt_total_amount", nullable = false, precision = 15, scale = 2)
-    private BigDecimal totalAmount;   // ndt_total_amount (DECIMAL)
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ndt_status", length = 20)
-    private NdtOrderStatus status;   // <--- THÊM
+    private NdtOrderStatus status;
 
-    // khóa ngoại tới ndt_users.ndt_user_id
     @ManyToOne
     @JoinColumn(name = "ndt_user_id")
     private NdtUser user;
 
-    // Quan hệ 1 đơn hàng - N chi tiết đơn hàng (nếu bạn có bảng ndt_order_details)
     @OneToMany(mappedBy = "order")
     private List<NdtOrderDetail> orderDetails;
 

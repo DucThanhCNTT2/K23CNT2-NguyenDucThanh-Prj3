@@ -21,7 +21,6 @@ public class NdtAdminUserController {
         this.roleRepo = roleRepo;
     }
 
-    // 1. HIỂN THỊ DANH SÁCH
     @GetMapping
     public String listUsers(Model model) {
         List<NdtUser> users = userRepo.findAll();
@@ -30,7 +29,6 @@ public class NdtAdminUserController {
         return "admin/user-list";
     }
 
-    // 2. FORM THÊM MỚI
     @GetMapping("/add")
     public String showAddForm(Model model) {
         model.addAttribute("user", new NdtUser()); // Đối tượng rỗng
@@ -38,7 +36,6 @@ public class NdtAdminUserController {
         return "admin/user-form";
     }
 
-    // 3. FORM SỬA (Lấy theo ID)
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
         NdtUser user = userRepo.findById(id)
@@ -49,26 +46,17 @@ public class NdtAdminUserController {
         return "admin/user-form";
     }
 
-    // 4. LƯU NGƯỜI DÙNG (Xử lý cho cả Thêm và Sửa)
     @PostMapping("/save")
     public String saveUser(@ModelAttribute("user") NdtUser user) {
-        // Lưu ý: Nếu bạn có mã hóa mật khẩu thì cần xử lý ở đây
-        // Ví dụ: if (user.getId() == null) { mã hóa pass } ...
-
         userRepo.save(user);
         return "redirect:/ndt-admin/users";
     }
 
-    // 5. XÓA NGƯỜI DÙNG
     @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") Long id) {
-        // Kiểm tra xem có phải xóa chính mình (Admin đang login) không để tránh lỗi
-        // Ở đây làm đơn giản là xóa luôn
         try {
             userRepo.deleteById(id);
         } catch (Exception e) {
-            // Có thể user này đang dính khóa ngoại (Foreign Key) với bảng Order
-            // Bạn có thể thông báo lỗi hoặc set isActive = false thay vì xóa hẳn
             e.printStackTrace();
         }
         return "redirect:/ndt-admin/users";

@@ -21,7 +21,6 @@ public class NdtProductController {
         this.categoryRepository = categoryRepository;
     }
 
-    // /product/1, /product/2,...
     @GetMapping("/product/{id}")
     public String productDetail(@PathVariable("id") Long id, Model model) {
 
@@ -31,7 +30,6 @@ public class NdtProductController {
         model.addAttribute("product", product);
         model.addAttribute("categories", categoryRepository.findAll());
 
-        // tên file thymeleaf: product-detail.html
         return "product-detail";
     }
 }

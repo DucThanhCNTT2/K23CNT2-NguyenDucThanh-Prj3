@@ -25,20 +25,15 @@ public class NdtAdminOrderController {
         this.orderService = orderService;
     }
 
-    // --------- LIST ĐƠN HÀNG ----------
     @GetMapping
     public String listOrders(Model model) {
         model.addAttribute("activeMenu", "order");
-
-        // nếu chưa tạo hàm findAllByOrderByOrderDateDesc()
-        // thì có thể dùng findAll() cũng được
         model.addAttribute("orders",
                 orderRepo.findAllByOrderByOrderDateDesc());
 
-        return "admin/order-list";    // templates/admin/order-list.html
+        return "admin/order-list";
     }
 
-    // --------- CHI TIẾT ĐƠN HÀNG ----------
     @GetMapping("/{id}")
     public String viewOrder(@PathVariable Long id, Model model) {
         NdtOrder order = orderRepo.findById(id)
@@ -46,23 +41,13 @@ public class NdtAdminOrderController {
 
         model.addAttribute("activeMenu", "order");
         model.addAttribute("order", order);
-        return "admin/order-detail";  // templates/admin/order-detail.html
+        return "admin/order-detail";
     }
-
-    // --- QUẢN LÝ ĐƠN HÀNG (Đưa từ class con ra ngoài này) ---
-
-
-    // --------- XỬ LÝ CẬP NHẬT TRẠNG THÁI ----------
 
     @PostMapping("/update-status")
     public String updateStatus(@RequestParam("id") Long orderId,
                                @RequestParam("status") NdtOrderStatus newStatus) {
-
-        // Gọi Service cập nhật
         orderService.updateOrderStatus(orderId, newStatus);
-
-        // 🔥 QUAN TRỌNG: Phải dùng "redirect" để load lại trang mới,
-        // nếu dùng return "admin/order-list" thì dữ liệu cũ vẫn còn đó.
         return "redirect:/ndt-admin/orders";
     }
 }

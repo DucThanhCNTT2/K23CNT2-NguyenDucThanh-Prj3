@@ -4,17 +4,16 @@ import com.nguyenducthanh.K23CNT2.NguyenDucThanh.entity.NdtProduct;
 
 public class NdtCartItem {
 
-    private NdtProduct product;   // sản phẩm
-    private int quantity;         // số lượng
+    private NdtProduct product;
+    private int quantity;
 
-    private long unitPrice;       // giá 1 sản phẩm (gốc)
-    private int discountPercent;  // % giảm giá (0 nếu null)
+    private long unitPrice;
+    private int discountPercent;
 
     public NdtCartItem(NdtProduct product, int quantity) {
         this.product = product;
         this.quantity = quantity;
 
-        // product.getPrice() là BigDecimal -> dùng longValue()
         this.unitPrice = product.getPrice() == null
                 ? 0L
                 : product.getPrice().longValue();
@@ -25,7 +24,6 @@ public class NdtCartItem {
                         : product.getDiscountPercent();
     }
 
-    /* --- getter / setter đơn giản --- */
 
     public NdtProduct getProduct() {
         return product;
@@ -59,19 +57,14 @@ public class NdtCartItem {
         this.discountPercent = discountPercent;
     }
 
-    /* --- các hàm tính tiền --- */
-
-    // tổng gốc = giá * số lượng
     public long getOriginalLineTotal() {
         return unitPrice * quantity;
     }
 
-    // số tiền giảm
     public long getDiscountAmount() {
         return getOriginalLineTotal() * discountPercent / 100;
     }
 
-    // tổng sau giảm
     public long getLineTotal() {
         return getOriginalLineTotal() - getDiscountAmount();
     }

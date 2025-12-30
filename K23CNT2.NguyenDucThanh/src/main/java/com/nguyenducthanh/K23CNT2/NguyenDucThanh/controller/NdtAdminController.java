@@ -19,10 +19,10 @@ public class NdtAdminController {
     private final NdtOrderRepository orderRepo;
     private final NdtUserRepository userRepo;
 
-    // 1. Thêm Service vào đây để xử lý đơn hàng
+
     private final NdtOrderService orderService;
 
-    // 2. Cập nhật Constructor để tiêm (Inject) Service vào
+
     public NdtAdminController(NdtProductRepository productRepo,
                               NdtCategoryRepository categoryRepo,
                               NdtOrderRepository orderRepo,
@@ -35,11 +35,11 @@ public class NdtAdminController {
         this.orderService = orderService;
     }
 
-    // --- DASHBOARD (Trang chủ Admin) ---
+
     @GetMapping("/ndt-admin")
     public String dashboard(HttpSession session, Model model) {
 
-        // CHECK ĐĂNG NHẬP + QUYỀN
+
         NdtUser user = (NdtUser) session.getAttribute("ndtCurrentUser");
         if (user == null) {
             return "redirect:/";
@@ -53,7 +53,7 @@ public class NdtAdminController {
             return "redirect:/";
         }
 
-        // LẤY THỐNG KÊ
+
         long productCount = productRepo.count();
         long categoryCount = categoryRepo.count();
         long orderCount = orderRepo.count();
@@ -70,7 +70,7 @@ public class NdtAdminController {
         model.addAttribute("userCount", userCount);
         model.addAttribute("latestOrders", latestOrders);
 
-        return "admin";   // Đảm bảo file này là templates/admin/index.html
+        return "admin";
     }
 
 

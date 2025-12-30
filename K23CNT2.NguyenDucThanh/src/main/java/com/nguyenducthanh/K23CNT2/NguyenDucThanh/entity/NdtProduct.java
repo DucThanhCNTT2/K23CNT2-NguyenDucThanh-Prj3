@@ -114,7 +114,6 @@ public class NdtProduct {
     public Integer getDiscountPercent() { return discountPercent; }
     public void setDiscountPercent(Integer discountPercent) { this.discountPercent = discountPercent; }
 
-    // ✅ GIÁ SAU GIẢM (tự tính)
     @Transient
     public BigDecimal getDiscountedPrice() {
         if (price == null) return null;

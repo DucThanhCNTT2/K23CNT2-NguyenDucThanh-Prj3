@@ -23,7 +23,6 @@
             this.categoryRepo = categoryRepo;
         }
 
-        // -------- LIST SẢN PHẨM --------
         @GetMapping
         public String list(Model model) {
             model.addAttribute("activeMenu", "product");
@@ -31,7 +30,6 @@
             return "admin/product-list";   // -> templates/admin/product-list.html
         }
 
-        // -------- FORM THÊM --------
         @GetMapping("/create")
         public String showCreateForm(Model model) {
             model.addAttribute("activeMenu", "product");
@@ -49,7 +47,6 @@
             return "redirect:/ndt-admin/products";
         }
 
-        // -------- FORM SỬA --------
         @GetMapping("/edit/{id}")
         public String showEditForm(@PathVariable Long id, Model model) {
             NdtProduct product = productRepo.findById(id)
@@ -81,22 +78,15 @@
             ra.addFlashAttribute("msg", "Đã cập nhật sản phẩm");
             return "redirect:/ndt-admin/products";
         }
-        // -------- 4. LƯU SẢN PHẨM (XỬ LÝ CẢ THÊM VÀ SỬA) --------
-        // Quan trọng: Hàm này khớp với action="/ndt-admin/products/save" bên HTML
         @PostMapping("/save")
         public String saveProduct(@ModelAttribute("product") NdtProduct product,
                                   RedirectAttributes ra) {
-
-            // Hàm save của JPA rất thông minh:
-            // - Nếu product có ID -> Nó tự hiểu là Update (Sửa)
-            // - Nếu product không có ID -> Nó tự hiểu là Insert (Thêm mới)
             productRepo.save(product);
 
             ra.addFlashAttribute("msg", "Đã lưu sản phẩm thành công!");
             return "redirect:/ndt-admin/products";
         }
 
-        // -------- XOÁ --------
         @PostMapping("/delete/{id}")
         public String delete(@PathVariable Long id, RedirectAttributes ra) {
             if (productRepo.existsById(id)) {

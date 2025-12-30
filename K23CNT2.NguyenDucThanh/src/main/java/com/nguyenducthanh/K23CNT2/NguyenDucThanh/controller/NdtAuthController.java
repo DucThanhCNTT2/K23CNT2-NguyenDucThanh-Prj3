@@ -25,7 +25,6 @@ public class NdtAuthController {
         this.roleRepo = roleRepo;
     }
 
-    // ---------- ĐĂNG KÝ ----------
     @PostMapping("/ndt-register")
     public String register(
             @RequestParam String username,
@@ -44,7 +43,6 @@ public class NdtAuthController {
             return "redirect:/";
         }
 
-        // mặc định role GUEST
         NdtRole guestRole = roleRepo.findByroleName("GUEST")
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy role GUEST"));
 
@@ -53,7 +51,7 @@ public class NdtAuthController {
         u.setFullName(fullName);
         u.setEmail(email);
         u.setPhone(phone);
-        u.setPassword(password);   // demo, chưa mã hoá
+        u.setPassword(password);
         u.setRole(guestRole);
         u.setIsActive(true);
 
@@ -63,7 +61,6 @@ public class NdtAuthController {
         return "redirect:/";
     }
 
-    // ---------- ĐĂNG NHẬP ----------
     @PostMapping("/ndt-login")
     public String login(
             @RequestParam("usernameOrEmail") String usernameOrEmail,
@@ -85,28 +82,22 @@ public class NdtAuthController {
 
         NdtUser user = opt.get();
 
-        // Lưu user vào session
         session.setAttribute("ndtCurrentUser", user);
 
-        // nếu thích lưu role vào session:
         if (user.getRole() != null) {
             session.setAttribute("ndtRoleId", user.getRole().getId());
             session.setAttribute("ndtRoleName", user.getRole().getRoleName());
         }
 
-        // ===== PHÂN QUYỀN BẰNG ndt_role_id =====
         Long roleId = (user.getRole() != null) ? user.getRole().getId() : null;
 
-        // ví dụ: 1 = ADMIN, 2 = STAFF
         if (roleId != null && (roleId == 1L || roleId == 2L)) {
-            return "redirect:/ndt-admin";   // sang trang quản trị
+            return "redirect:/ndt-admin";
         }
 
-        // các role khác (3 = shipper, 4 = guest...) quay về trang chủ
         return "redirect:/";
     }
 
-    // ---------- ĐĂNG XUẤT ----------
     @GetMapping("/ndt-logout")
     public String logout(HttpSession session) {
         session.invalidate();

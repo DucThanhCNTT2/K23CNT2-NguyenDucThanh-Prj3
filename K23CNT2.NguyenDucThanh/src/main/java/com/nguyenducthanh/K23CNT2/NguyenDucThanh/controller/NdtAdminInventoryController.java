@@ -19,12 +19,11 @@ public class NdtAdminInventoryController {
     @GetMapping
     public String inventory(Model model) {
         model.addAttribute("activeMenu", "inventory");
-        // Sắp xếp sản phẩm theo ID giảm dần để dễ nhìn cái mới nhập
         model.addAttribute("products", productRepo.findAll());
         return "admin/inventory";
     }
 
-    // SỬA LẠI ĐƯỜNG DẪN Ở ĐÂY
+
     @PostMapping("/add-stock/{id}")
     public String addStock(@PathVariable Long id,
                            @RequestParam("addQty") int addQty) {
@@ -34,7 +33,6 @@ public class NdtAdminInventoryController {
         NdtProduct p = productRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // Cộng thêm vào số lượng cũ
         p.setQuantity(p.getQuantity() + addQty);
 
         productRepo.save(p);

@@ -20,29 +20,24 @@ public class NdtCartService {
 
     private final NdtProductRepository productRepo;
 
-    // key = productId
     private final Map<Long, NdtCartItem> items = new LinkedHashMap<>();
 
     public NdtCartService(NdtProductRepository productRepo) {
         this.productRepo = productRepo;
     }
 
-    // Lấy toàn bộ item trong giỏ
     public Collection<NdtCartItem> getItems() {
         return items.values();
     }
 
-    // Số dòng trong giỏ
     public int getItemCount() {
         return items.size();
     }
 
-    // Giỏ rỗng?
     public boolean isEmpty() {
         return items.isEmpty();
     }
 
-    // Thêm sản phẩm (tăng số lượng nếu đã tồn tại)
     public void addProduct(Long productId, int qty) {
         if (qty <= 0) return;
 
@@ -56,7 +51,6 @@ public class NdtCartService {
         item.setQuantity(item.getQuantity() + qty);
     }
 
-    // Cập nhật số lượng (0 hoặc <0 => remove)
     public void updateQuantity(Long productId, int qty) {
         if (!items.containsKey(productId)) return;
 
@@ -67,31 +61,26 @@ public class NdtCartService {
         }
     }
 
-    // Xoá 1 sản phẩm khỏi giỏ
     public void removeProduct(Long productId) {
         items.remove(productId);
     }
 
-    // Xoá sạch giỏ
     public void clear() {
         items.clear();
     }
 
-    // ⭐ Tổng tiền giỏ hàng (sau giảm giá)
     public long getTotal() {
         return items.values().stream()
                 .mapToLong(NdtCartItem::getLineTotal)
                 .sum();
     }
 
-    // (tuỳ chọn) Tổng tiền gốc chưa giảm
     public long getSubTotal() {
         return items.values().stream()
                 .mapToLong(NdtCartItem::getOriginalLineTotal)
                 .sum();
     }
 
-    // (tuỳ chọn) Tổng tiền giảm
     public long getTotalDiscount() {
         return getSubTotal() - getTotal();
     }
