@@ -217,8 +217,8 @@
             <a th:href="@{/}" class="btn btn-warning fw-bold px-4 py-2">
                 <i class="fa-solid fa-arrow-left me-2"></i> Tiếp tục mua sắm
             </a>
-            <a th:href="@{/order-history}" class="btn btn-outline-dark fw-bold px-4 py-2">
-                Xem đơn hàng <i class="fa-solid fa-arrow-right ms-2"></i>
+            <a th:href="@{'/order/detail/' + ${order.id}}" class="btn btn-outline-dark fw-bold px-4 py-2">
+                Xem chi tiết đơn hàng <i class="fa-solid fa-arrow-right ms-2"></i>
             </a>
         </div>
     </div>

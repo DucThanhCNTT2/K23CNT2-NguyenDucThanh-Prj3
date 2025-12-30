@@ -1,6 +1,7 @@
     package com.nguyenducthanh.K23CNT2.NguyenDucThanh.repository;
 
     import com.nguyenducthanh.K23CNT2.NguyenDucThanh.entity.NdtOrder;
+    import com.nguyenducthanh.K23CNT2.NguyenDucThanh.entity.NdtUser;
     import org.springframework.data.jpa.repository.JpaRepository;
 
     import java.util.List;
@@ -9,4 +10,6 @@
         List<NdtOrder> findTop5ByOrderByOrderDateDesc();
 
         List<NdtOrder> findAllByOrderByOrderDateDesc();
+
+        List<NdtOrder> findByUserOrderByOrderDateDesc(NdtUser user);
     }

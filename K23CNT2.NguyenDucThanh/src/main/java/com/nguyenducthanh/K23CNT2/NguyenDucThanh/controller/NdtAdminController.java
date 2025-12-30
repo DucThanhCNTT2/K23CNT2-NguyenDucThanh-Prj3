@@ -70,28 +70,8 @@ public class NdtAdminController {
         model.addAttribute("userCount", userCount);
         model.addAttribute("latestOrders", latestOrders);
 
-        return "admin/index";   // Đảm bảo file này là templates/admin/index.html
+        return "admin";   // Đảm bảo file này là templates/admin/index.html
     }
 
-    // --- QUẢN LÝ ĐƠN HÀNG (Đưa từ class con ra ngoài này) ---
 
-    // 1. Hiển thị danh sách đơn hàng
-    @GetMapping("/ndt-admin/orders")
-    public String listOrders(Model model) {
-        // Lấy danh sách sắp xếp theo ID giảm dần
-        List<NdtOrder> list = orderRepo.findAll(Sort.by(Sort.Direction.DESC, "id"));
-        model.addAttribute("orders", list);
-        return "admin/order-list"; // Trỏ đến templates/admin/order-list.html
-    }
-
-    // 2. Xử lý cập nhật trạng thái
-    @PostMapping("/ndt-admin/orders/update-status")
-    public String updateStatus(@RequestParam("id") Long orderId,
-                               @RequestParam("status") NdtOrderStatus newStatus) {
-        // Gọi Service cập nhật
-        orderService.updateOrderStatus(orderId, newStatus);
-
-        // Quay lại trang danh sách
-        return "redirect:/ndt-admin/orders";
-    }
 }

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ sơ cá nhân - SneakerNDT</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: "Segoe UI", Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- 1. CSS HEADER (Giống trang chủ) --- */
+        .ndt-header-top { background: #000; color: #fff; padding: 6px 0; }
+        .ndt-logo img { height: 48px; }
+        .ndt-search-box input { border-radius: 0; }
+        .ndt-main-menu { background: #222; }
+        .ndt-main-menu a {
+            color: #fff; font-weight: 500; padding: 14px 18px;
+            display: inline-block; text-transform: uppercase; text-decoration: none; font-size: 14px;
+        }
+        .ndt-main-menu a:hover { background: #ffb300; color: #000; }
+
+        .ndt-account-cart-group { display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
+
+        .ndt-header-box {
+            display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+            background: #111; border-radius: 4px; cursor: pointer; color: #fff; position: relative;
+        }
+        .ndt-header-box:hover { background: #222; }
+        .ndt-header-text { display: flex; flex-direction: column; line-height: 1.1; font-size: 12px; }
+
+        /* Dropdown Menu */
+        .ndt-account-dropdown {
+            position: absolute; top: 100%; right: 0; width: 220px;
+            background: #fff; color: #333; border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 10px 0;
+            display: none; z-index: 9999; margin-top: 10px; text-align: left;
+        }
+        .ndt-account-dropdown::before {
+            content: ""; position: absolute; top: -8px; right: 20px;
+            border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #fff;
+        }
+        #ndtAccountBtn:hover .ndt-account-dropdown { display: block; }
+        .ndt-account-dropdown a { display: block; padding: 10px 20px; color: #333; text-decoration: none; font-weight: 500;}
+        .ndt-account-dropdown a:hover { background: #f5f5f5; color: #ffb300; }
+
+        /* --- 2. CSS CONTENT (Profile Card) --- */
+        .main-content { flex: 1; padding: 40px 0; }
+
+        .profile-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: none;
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .profile-cover {
+            height: 140px;
+            background: linear-gradient(135deg, #111 0%, #333 100%);
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            border: 5px solid #fff;
+            background-color: #fff;
+            position: absolute;
+            bottom: -60px; left: 50%;
+            transform: translateX(-50%);
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .profile-info { text-align: center; margin-top: 70px; margin-bottom: 30px; }
+
+        .form-label { font-weight: 600; color: #4b5563; font-size: 0.9rem; }
+        .form-control { padding: 10px 15px; border-radius: 8px; }
+        .form-control:focus { box-shadow: 0 0 0 3px rgba(255, 179, 0, 0.2); border-color: #ffb300; }
+
+        .btn-save {
+            background-color: #000; color: #fff; padding: 10px 30px; border-radius: 30px; font-weight: 600; border: none;
+        }
+        .btn-save:hover { background-color: #333; color: #fff; }
+
+        /* --- 3. CSS FOOTER --- */
+        .ndt-footer-top { background: #111; color: #fff; padding: 18px 0; margin-top: auto; }
+        .ndt-footer-top i { font-size: 24px; margin-bottom: 8px; }
+        .ndt-footer-bottom { background: #000; color: #d9d9d9; padding: 26px 0; font-size: 14px; }
+        .ndt-scroll-top {
+            position: fixed; bottom: 18px; right: 18px; width: 40px; height: 40px;
+            border-radius: 50%; border: 1px solid #111; display: flex; align-items: center;
+            justify-content: center; background: #fff; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ndt-header-top">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center">
+            <div class="col-md-3 d-flex align-items-center ndt-logo">
+                <a href="/" class="d-flex align-items-center text-decoration-none text-white">
+                    <img src="/Img/StoreLogo.jpg" alt="SneakerNDT">
+                    <span class="ms-2 fw-bold">SneakerNDT</span>
+                </a>
+            </div>
+
+            <div class="col-md-6">
+                <form class="ndt-search-box" th:action="@{/search}" method="get">
+                    <div class="input-group">
+                        <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm sản phẩm">
+                        <button class="btn btn-dark border-light" type="submit"><i class="fa fa-search"></i></button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-3 d-flex justify-content-end">
+                <div class="ndt-account-cart-group">
+                    <div class="ndt-header-box" id="ndtAccountBtn">
+                        <i class="fa fa-user fs-5"></i>
+                        <div class="ndt-header-text">
+                            <span style="opacity:0.8">Xin chào</span>
+                            <span class="fw-bold" th:text="${user.fullName != null ? user.fullName : user.username}">User</span>
+                        </div>
+
+                        <div class="ndt-account-dropdown">
+                            <div th:if="${user.role != null and user.role.roleName == 'ADMIN'}">
+                                <a th:href="@{/ndt-admin}"><i class="fa-solid fa-gauge-high me-2"></i> Trang quản trị</a>
+                            </div>
+
+                            <div th:unless="${user.role != null and user.role.roleName == 'ADMIN'}">
+                                <a th:href="@{/order/history}"><i class="fa-solid fa-box-open me-2"></i> Đơn hàng của tôi</a>
+                            </div>
+
+                            <a href="#" class="active" style="background:#f5f5f5; color:#ffb300;">
+                                <i class="fa-solid fa-address-card me-2"></i> Thông tin cá nhân
+                            </a>
+                            <hr class="my-1 text-muted">
+                            <a th:href="@{/ndt-logout}"><i class="fa-solid fa-right-from-bracket me-2"></i> Đăng xuất</a>
+                        </div>
+                    </div>
+
+                    <div class="ndt-header-box">
+                        <i class="fa fa-shopping-bag fs-5"></i>
+                        <div class="ndt-header-text">
+                            <span style="opacity:0.8">Giỏ hàng</span>
+                            <span class="fw-bold">...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="ndt-main-menu">
+    <div class="container-fluid px-4 d-flex justify-content-center flex-wrap">
+        <a href="#">Nike</a><a href="#">Adidas</a><a href="#">Puma</a><a href="#">Vans</a><a href="#">Converse</a><a href="#">NewBalance</a>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="container px-3">
+
+        <div th:if="${param.success}" class="alert alert-success mt-0 mb-4 shadow-sm text-center" style="max-width: 850px; margin: 0 auto;">
+            <i class="fa-solid fa-circle-check me-2"></i> Cập nhật thông tin thành công!
+        </div>
+
+        <div class="profile-card">
+            <div class="profile-cover">
+                <div class="profile-avatar">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Avatar">
+                </div>
+            </div>
+
+            <div class="profile-info">
+                <h3 class="fw-bold text-dark mb-1" th:text="${user.fullName}">Tên Admin</h3>
+                <span class="badge bg-dark rounded-pill px-3 py-2"
+                      th:text="${user.role != null ? user.role.roleName : 'USER'}">ADMIN</span>
+            </div>
+
+            <hr class="mx-5 text-muted opacity-25">
+
+            <div class="p-5 pt-2">
+                <form th:action="@{/ndt-admin/profile/update}" th:object="${user}" method="post">
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <h5 class="fw-bold text-dark mb-3"><i class="fa-regular fa-id-card me-2"></i>Thông tin cơ bản</h5>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control bg-light" th:field="*{username}" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" th:field="*{email}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" th:field="*{fullName}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" th:field="*{phone}">
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <h5 class="fw-bold text-danger mb-3"><i class="fa-solid fa-shield-halved me-2"></i>Bảo mật</h5>
+                            <div class="p-4 bg-light rounded-3 border border-dashed">
+                                <label class="form-label">Đổi mật khẩu mới</label>
+                                <input type="password" class="form-control" name="password"
+                                       placeholder="Nhập mật khẩu mới nếu muốn thay đổi...">
+                                <small class="text-muted mt-1 d-block">Để trống nếu bạn muốn giữ mật khẩu cũ.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-3 mt-5">
+                        <a th:href="@{/}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-save shadow-lg">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ndt-footer-top">
+    <div class="container text-center text-md-start">
+        <div class="row">
+            <div class="col-md-3 mb-3 mb-md-0"><i class="fa-solid fa-truck-fast"></i><div class="fw-bold">MIỄN PHÍ vận chuyển</div><small>cho đơn từ 500K</small></div>
+            <div class="col-md-3 mb-3 mb-md-0"><i class="fa-solid fa-box-open"></i><div class="fw-bold">ĐỔI HÀNG dễ dàng</div><small>Trong 30 ngày</small></div>
+            <div class="col-md-3 mb-3 mb-md-0"><i class="fa-solid fa-credit-card"></i><div class="fw-bold">Thanh toán đa dạng</div><small>Nhiều hình thức</small></div>
+            <div class="col-md-3"><i class="fa-solid fa-headset"></i><div class="fw-bold">CSKH 1900 xxx</div><small>8:00 - 21:00 hằng ngày</small></div>
+        </div>
+    </div>
+</div>
+<div class="ndt-footer-bottom text-center">
+    <div class="container">SneakerNDT © 2025</div>
+</div>
+
+<div class="ndt-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="fa-solid fa-chevron-up"></i>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

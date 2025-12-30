@@ -75,4 +75,17 @@ public class NdtHomeController {
 
         return "index";
     }
+
+    // ⭐ CHỨC NĂNG TÌM KIẾM
+    @GetMapping("/search")
+    public String search(@RequestParam("keyword") String keyword, Model model) {
+
+        // Gọi hàm tìm kiếm MỚI (cả tên và thương hiệu)
+        List<NdtProduct> products = productRepository.searchByNameOrBrand(keyword);
+
+        model.addAttribute("products", products);
+        model.addAttribute("keyword", keyword);
+
+        return "product-search";
+    }
 }

@@ -53,9 +53,7 @@
         }
 
         /* HIỆN MENU KHI HOVER */
-        #ndtAccountBtn:hover .ndt-account-dropdown {
-            display: block;
-        }
+
 
         .ndt-account-dropdown a {
             display: block;
@@ -67,10 +65,15 @@
             transition: background 0.2s;
         }
 
-        .ndt-account-dropdown a:hover {
-            background: #f5f5f5;
-            color: #ffb300;
-        }
+        .ndt-account-dropdown.show {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
         /* --- END CSS DROPDOWN --- */
 
@@ -174,7 +177,7 @@
             </div>
 
             <div class="col-md-6">
-                <form class="ndt-search-box" action="#" method="get">
+                <form class="ndt-search-box" th:action="@{/search}" method="get">
                     <div class="input-group">
                         <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm sản phẩm">
                         <button class="btn btn-dark" type="submit"><i class="fa fa-search"></i></button>
@@ -212,12 +215,12 @@
                                 </a>
 
                                 <a th:unless="${session.ndtCurrentUser.role.roleName == 'ADMIN'}"
-                                   th:href="@{/order-history}">
+                                   th:href="@{/order/history}">
                                     <i class="fa-solid fa-box-open"></i> Đơn hàng của tôi
                                 </a>
 
                                 <a th:unless="${session.ndtCurrentUser.role.roleName == 'ADMIN'}"
-                                   th:href="@{/profile}">
+                                   th:href="@{/ndt-admin/profile}">
                                     <i class="fa-solid fa-address-card"></i> Thông tin cá nhân
                                 </a>
 
@@ -529,14 +532,38 @@
         }
 
         const accountBtn = document.getElementById('ndtAccountBtn');
-        const loginModalEl = document.getElementById('ndtLoginModal');
-        if (accountBtn && loginModalEl && window.bootstrap) {
-            const loginModal = new bootstrap.Modal(loginModalEl);
-            accountBtn.addEventListener('click', function () {
-                const isLoggedIn = accountBtn.getAttribute('data-logged-in') === 'true';
-                if (!isLoggedIn) loginModal.show();
-            });
-        }
+    const accountDropdown = document.querySelector('.ndt-account-dropdown');
+    const loginModalEl = document.getElementById('ndtLoginModal');
+
+    if (accountBtn && window.bootstrap) {
+        const loginModal = new bootstrap.Modal(loginModalEl);
+
+        accountBtn.addEventListener('click', function (e) {
+            e.stopPropagation(); // Ngăn chặn sự kiện nổi bọt
+
+            // Kiểm tra trạng thái đăng nhập
+            const isLoggedIn = accountBtn.getAttribute('data-logged-in') === 'true';
+
+            if (!isLoggedIn) {
+                // CHƯA ĐĂNG NHẬP -> Mở Popup Login
+                loginModal.show();
+            } else {
+                // ĐÃ ĐĂNG NHẬP -> Bật/Tắt Menu con
+                if (accountDropdown) {
+                    accountDropdown.classList.toggle('show');
+                }
+            }
+        });
+
+        // Click ra ngoài thì tắt menu
+        document.addEventListener('click', function (e) {
+            if (accountDropdown && accountDropdown.classList.contains('show')) {
+                if (!accountDropdown.contains(e.target) && !accountBtn.contains(e.target)) {
+                    accountDropdown.classList.remove('show');
+                }
+            }
+        });
+    }
     });
 </script>
 </body>

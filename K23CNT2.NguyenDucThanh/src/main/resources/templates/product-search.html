@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả tìm kiếm - SneakerNDT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+    <style>
+        body { background-color: #f5f5f5; font-family: "Segoe UI", Arial, sans-serif; }
+        .ndt-header-top { background: #000; color: #fff; padding: 6px 0; }
+        .ndt-product-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow: hidden; transition: 0.2s; }
+        .ndt-product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,.12); }
+        .ndt-product-card img { width: 100%; height: 200px; object-fit: cover; }
+        .ndt-product-name { font-size: 14px; font-weight: 600; min-height: 40px; color: #000; display: block; text-decoration: none; }
+        .ndt-price-current { color: #e40000; font-weight: 700; font-size: 16px; }
+
+        .ndt-btn-cart-return:hover {
+            background: #ffa000;
+            color: #000;
+        }
+
+        .ndt-footer-top {
+            background: #111;
+            color: #fff;
+            padding: 18px 0;
+        }
+
+        .ndt-footer-top i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .ndt-footer-bottom {
+            background: #000;
+            color: #d9d9d9;
+            padding: 26px 0;
+            font-size: 14px;
+        }
+
+        .ndt-scroll-top {
+            position: fixed;
+            bottom: 18px;
+            right: 18px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ndt-header-top">
+    <div class="container py-2 d-flex justify-content-between align-items-center">
+        <a th:href="@{/}" class="text-white text-decoration-none fw-bold">
+            <i class="fa-solid fa-arrow-left"></i> Về trang chủ
+        </a>
+        <span class="fw-bold">KẾT QUẢ TÌM KIẾM</span>
+        <div style="width: 100px;"></div> </div>
+</div>
+
+<div class="container my-5">
+    <h4 class="mb-4">
+        Tìm kiếm cho từ khóa: "<span class="text-danger" th:text="${keyword}"></span>"
+    </h4>
+
+    <div th:if="${#lists.isEmpty(products)}" class="text-center py-5">
+        <i class="fa-solid fa-box-open fs-1 text-secondary mb-3"></i>
+        <p class="text-muted">Không tìm thấy sản phẩm nào phù hợp.</p>
+        <a th:href="@{/}" class="btn btn-dark">Xem tất cả sản phẩm</a>
+    </div>
+
+    <div class="row g-3" th:if="${!#lists.isEmpty(products)}">
+        <div class="col-6 col-md-4 col-lg-3" th:each="p : ${products}">
+            <div class="ndt-product-card h-100">
+                <a th:href="@{'/product/' + ${p.id}}">
+                    <img th:src="${p.imgUrl} != null ? @{/Img/{f}(f=${p.imgUrl})} : @{/Img/default.png}" alt="img">
+                </a>
+                <div class="p-3">
+                    <a th:href="@{'/product/' + ${p.id}}" class="ndt-product-name" th:text="${p.name}">Tên giày</a>
+                    <div class="mt-2">
+                        <span class="ndt-price-current"
+                              th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')} + ' đ'">
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FOOTER (y hệt index) -->
+<div class="ndt-footer-top">
+    <div class="container">
+        <div class="row text-center text-md-start">
+            <div class="col-md-3 mb-3 mb-md-0">
+                <i class="fa-solid fa-truck-fast"></i>
+                <div class="fw-bold">MIỄN PHÍ vận chuyển</div>
+                <small>cho đơn từ 500K</small>
+            </div>
+            <div class="col-md-3 mb-3 mb-md-0">
+                <i class="fa-solid fa-box-open"></i>
+                <div class="fw-bold">ĐỔI HÀNG dễ dàng</div>
+                <small>Trong 30 ngày</small>
+            </div>
+            <div class="col-md-3 mb-3 mb-md-0">
+                <i class="fa-solid fa-credit-card"></i>
+                <div class="fw-bold">Thanh toán đa dạng</div>
+                <small>Nhiều hình thức</small>
+            </div>
+            <div class="col-md-3">
+                <i class="fa-solid fa-headset"></i>
+                <div class="fw-bold">CSKH 1900 xxx</div>
+                <small>8:00 - 21:00 hằng ngày</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ndt-footer-bottom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="fw-bold">CÔNG TY SneakerNDT</div>
+                <div>Địa chỉ: 137 Nguyễn Đức Thành, K23CNT2</div>
+                <div>Email: support@sneakerndt.com</div>
+            </div>
+            <div class="col-md-3 mt-3 mt-md-0">
+                <div class="fw-bold">VỀ CHÚNG TÔI</div>
+                <div>Giới thiệu</div>
+                <div>Liên hệ</div>
+                <div>Tuyển dụng</div>
+            </div>
+            <div class="col-md-3 mt-3 mt-md-0">
+                <div class="fw-bold">HỖ TRỢ</div>
+                <div>Chính sách đổi trả</div>
+                <div>Hướng dẫn mua hàng</div>
+                <div>Chính sách bảo mật</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ndt-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="fa-solid fa-chevron-up"></i>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
